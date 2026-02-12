@@ -1,0 +1,134 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+
+}
+
+model Auth {
+  id       String   @id @default(uuid())
+  username String   @unique
+  email    String   @unique
+  password String   // Should be hashed (use bcrypt in your NestJS service)
+  role     Role     @default(COLLABORATOR)
+  userId   String   @unique
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email])
+  @@index([username])
+}
+
+// User profile information
+model User {
+  id         String      @id @default(uuid())
+  firstName  String
+  lastName   String
+  profilePic String?     // Optional field (nullable)
+  age        Int?        // Changed to Int, age should be a number
+  
+  // Relations
+  auth            Auth?
+  ownedWorkspaces Workspace[] @relation("WorkspaceOwner")
+  collaborations  WorkspaceCollaborator[]
+  createdPages    Page[]      @relation("PageCreator")
+  
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+}
+
+// Workspace (like a Notion workspace)
+model Workspace {
+  id          String    @id @default(uuid())
+  name        String
+  icon        String?
+  description String?
+  
+  // Owner relation
+  ownerId     String
+  owner       User      @relation("WorkspaceOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  
+  // Relations
+  pages         Page[]
+  collaborators WorkspaceCollaborator[]
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([ownerId])
+}
+
+// Many-to-many relation for workspace collaborators
+model WorkspaceCollaborator {
+  id          String    @id @default(uuid())
+  
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  role        CollaboratorRole @default(VIEWER)
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([workspaceId, userId]) // A user can only be added once per workspace
+  @@index([workspaceId])
+  @@index([userId])
+}
+
+// Page (like a Notion page/document)
+model Page {
+  id           String    @id @default(uuid())
+  title        String    @default("Untitled")
+  icon         String?   // Optional emoji or icon
+  coverImage   String?   // Optional cover image
+  content      Json      @default("{}") // Store rich text content as JSON
+  
+  // Page nesting (pages can have sub-pages)
+  parentPageId String?
+  parentPage   Page?     @relation("PageNesting", fields: [parentPageId], references: [id], onDelete: Cascade)
+  subPages     Page[]    @relation("PageNesting")
+  
+  // Workspace relation
+  workspaceId  String
+  workspace    Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  
+  // Creator
+  createdById  String
+  createdBy    User      @relation("PageCreator", fields: [createdById], references: [id])
+  
+  // Metadata
+  isPublished  Boolean   @default(false)
+  isArchived   Boolean   @default(false)
+  
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([workspaceId])
+  @@index([parentPageId])
+  @@index([createdById])
+}
+
+// Enums
+enum Role {
+  OWNER
+  COLLABORATOR
+}
+
+enum CollaboratorRole {
+  OWNER
+  EDITOR
+  VIEWER
+}
