@@ -15,24 +15,6 @@ import { UpdateWorkspaceDto } from './dto/update-workspace.dto';
 export class WorkspaceController {
   constructor(private readonly workspaceService: WorkspaceService) {}
 
-  @Post()
-  create(
-    @Body() createWorkspaceDto: CreateWorkspaceDto,
-    @Body('userId') userId: string,
-  ) {
-    return this.workspaceService.create(userId, createWorkspaceDto);
-  }
-
-  @Get()
-  findAll(@Body('userId') userId: string) {
-    return this.workspaceService.getUserWorkspaces(userId);
-  }
-
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.workspaceService.findOne(+id);
-  // }
-
   @Patch(':id')
   update(
     @Param('id') id: string,
