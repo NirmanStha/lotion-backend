@@ -23,14 +23,17 @@ export class User {
   @Column()
   lastName: string;
 
+  @Column({ unique: true })
+  username: string;
+
   @Column({ nullable: true })
   profilePic?: string;
 
   @Column({ nullable: true })
   age?: number;
 
-  @OneToOne(() => Auth, (auth) => auth.user)
-  auth: Auth;
+  @OneToMany(() => Auth, (auth) => auth.user)
+  authProviders: Auth[];
 
   @OneToMany(() => Workspace, (workspace) => workspace.owner)
   ownedWorkspaces: Workspace[];

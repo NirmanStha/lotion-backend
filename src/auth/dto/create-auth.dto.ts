@@ -6,19 +6,15 @@ import {
   IsStrongPassword,
 } from 'class-validator';
 
-export class CreateAuthDto {
-  @IsString()
+export class RegisterLocalDto {
   @IsEmail()
   @IsNotEmpty()
   email: string;
 
-  @IsNotEmpty()
   @IsString()
   @IsNotEmpty()
   username: string;
 
-  @IsString()
-  @IsNotEmpty()
   @IsStrongPassword({
     minLength: 8,
     minLowercase: 1,
@@ -27,4 +23,19 @@ export class CreateAuthDto {
     minSymbols: 1,
   })
   password: string;
+}
+
+export enum AuthProvider {
+  GOOGLE = 'google',
+  GITHUB = 'github',
+  LOCAL = 'local',
+}
+
+export class OAuthLoginDto {
+  @IsEnum(AuthProvider)
+  provider: AuthProvider;
+
+  @IsString()
+  @IsNotEmpty()
+  accessToken: string; // or idToken
 }

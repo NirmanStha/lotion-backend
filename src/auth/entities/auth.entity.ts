@@ -2,10 +2,10 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  OneToOne,
   JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToOne,
 } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
 
@@ -13,6 +13,12 @@ import { User } from 'src/user/entities/user.entity';
 export class Auth {
   @PrimaryGeneratedColumn('uuid')
   id: string;
+
+  @Column()
+  provider: string;
+
+  @Column()
+  providerId: string;
 
   @Column({ unique: true })
   username: string;
@@ -23,10 +29,10 @@ export class Auth {
   @Column()
   password: string;
 
-  @Column({ unique: true })
-  userId: string;
+  @Column({ unique: true, nullable: true })
+  refreshToken?: string | null;
 
-  @OneToOne(() => User, (user) => user.auth, { onDelete: 'CASCADE' })
+  @ManyToOne(() => User, (user) => user.authProviders, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'userId' })
   user: User;
 
