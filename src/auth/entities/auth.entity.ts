@@ -29,7 +29,7 @@ export class Auth {
   @Column()
   password: string;
 
-  @Column({ unique: true, nullable: true })
+  @Column({ type: 'text', unique: true, nullable: true, default: null })
   refreshToken?: string | null;
 
   @ManyToOne(() => User, (user) => user.authProviders, { onDelete: 'CASCADE' })

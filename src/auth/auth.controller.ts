@@ -9,7 +9,6 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterLocalDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -27,5 +26,10 @@ export class AuthController {
   @Post('local/register')
   register(@Body() createAuthDto: RegisterLocalDto) {
     return this.authService.registerLocal(createAuthDto);
+  }
+  @Get('profile')
+  getProfile() {
+    // This is a placeholder. You would need to implement logic to get the authenticated user's profile.
+    return { message: 'User profile endpoint' };
   }
 }

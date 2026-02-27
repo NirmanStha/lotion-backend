@@ -1,0 +1,31 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:15
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: lotion
+      POSTGRES_USER: lotion
+      POSTGRES_PASSWORD: lotion
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+
+  app:
+    build: .
+    restart: unless-stopped
+    ports:
+      - '3000:3000'
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: lotion
+      DB_PASSWORD: lotion
+      DB_NAME: lotion
+      NODE_ENV: development
+    depends_on:
+      - db
+
+volumes:
+  db_data:

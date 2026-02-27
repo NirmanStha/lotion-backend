@@ -7,8 +7,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 
 import { OAuthLoginDto, RegisterLocalDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
-import { UserService } from 'src/user/user.service';
+
 import { User } from 'src/user/entities/user.entity';
 
 import { Repository } from 'typeorm';
