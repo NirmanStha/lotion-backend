@@ -38,7 +38,6 @@ export class AuthService {
     return { accessToken, refreshToken };
   }
 
-  // ✅ hash the refresh token before storing — plain text in DB is a risk
   private async saveRefreshToken(userId: string, refreshToken: string | null) {
     const hashed = refreshToken ? await bcrypt.hash(refreshToken, 10) : null;
 
