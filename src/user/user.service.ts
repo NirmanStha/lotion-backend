@@ -36,23 +36,6 @@ export class UserService {
     }
   }
 
-  async create(createUserDto: CreateUserDto, profilePic?: string) {
-    const { username, firstName, lastName, age } = createUserDto;
-    const profilePicUrl = profilePic
-      ? `https://lotion.s3.amazonaws.com/${profilePic}`
-      : undefined;
-
-    await this.checkUsernameTaken(username);
-    const user = this.userRepo.create({
-      username,
-      firstName,
-      lastName,
-      profilePic: profilePicUrl,
-      age,
-    });
-    return this.userRepo.save(user);
-  }
-
   findAll() {
     return this.userRepo.find();
   }
@@ -66,7 +49,7 @@ export class UserService {
 
     const updatedUser = { ...user, ...updateUserDto };
     if (profilePic) {
-      updatedUser.profilePic = `https://lotion.s3.amazonaws.com/${profilePic}`;
+      updatedUser.profilePic = `/uploads/profilePics/${profilePic}`; // 👈 store path
     }
 
     return this.userRepo.save({

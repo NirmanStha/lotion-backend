@@ -30,7 +30,10 @@ export class User {
   profilePic?: string;
 
   @Column({ nullable: true })
-  age?: number;
+  age?: string;
+
+  @Column({ default: false })
+  isComplete: boolean;
 
   @OneToMany(() => Auth, (auth) => auth.user)
   authProviders: Auth[];

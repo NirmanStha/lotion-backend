@@ -11,10 +11,6 @@ export class RegisterLocalDto {
   @IsNotEmpty()
   email: string;
 
-  @IsString()
-  @IsNotEmpty()
-  username: string;
-
   @IsStrongPassword({
     minLength: 8,
     minLowercase: 1,

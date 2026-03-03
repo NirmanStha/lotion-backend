@@ -8,6 +8,6 @@ export class CreateUserDto {
   firstName: string;
   @IsString()
   lastName: string;
-  @IsNumber()
-  age?: number;
+  @IsString()
+  age?: string;
 }
