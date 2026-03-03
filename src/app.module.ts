@@ -9,7 +9,7 @@ import { WorkspaceModule } from './workspace/workspace.module';
 import { CollaboratorModule } from './collaborator/collaborator.module';
 import { PageModule } from './page/page.module';
 import { APP_GUARD } from '@nestjs/core';
-import { JwtStrategy } from './common/gaurd/jwt.auth.gaurd';
+import { JwtAuthGuard } from './common/gaurd/jwt.auth.gaurd';
 
 @Module({
   imports: [
@@ -27,6 +27,6 @@ import { JwtStrategy } from './common/gaurd/jwt.auth.gaurd';
     CollaboratorModule,
     PageModule,
   ],
-  providers: [{ provide: APP_GUARD, useClass: JwtStrategy }],
+  providers: [{ provide: APP_GUARD, useClass: JwtAuthGuard }],
 })
 export class AppModule {}

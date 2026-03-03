@@ -6,9 +6,12 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { Auth } from './entities/auth.entity';
 import { User } from 'src/user/entities/user.entity';
+import { PassportModule } from '@nestjs/passport';
+import { JwtStrategy } from './strategies/jwt.strategy';
 
 @Module({
   imports: [
+    PassportModule,
     TypeOrmModule.forFeature([Auth, User]),
     JwtModule.register({
       secret: process.env.JWT_ACCESS_SECRET || 'dev-secret',
@@ -16,7 +19,7 @@ import { User } from 'src/user/entities/user.entity';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService],
+  providers: [AuthService, JwtStrategy],
   exports: [AuthService],
 })
 export class AuthModule {}

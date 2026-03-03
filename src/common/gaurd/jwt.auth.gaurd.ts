@@ -1,23 +1,20 @@
-import { PassportStrategy } from '@nestjs/passport';
-import { Extractjwt, Strategy } from 'passport-jwt';
-import { Request } from 'express';
-import { Injectable } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+import { IS_PUBLIC_KEY } from '../decorator/public.decorator';
+import { ExecutionContext, Injectable } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor() {
-    super({
-      jwtFromRequest: Extractjwt.fromExtractors([
-        (req: Request) => {
-          return req.cookies?.['access_token'];
-        },
-      ]),
-      ignoreExpiration: false,
-      secretOrKey: process.env.JWT_SECRET || 'default_secret',
-    });
+export class JwtAuthGuard extends AuthGuard('jwt') {
+  constructor(private reflector: Reflector) {
+    super();
   }
 
-  async validate(payload: any) {
-    return { userId: payload.sub, email: payload.email };
+  canActivate(context: ExecutionContext) {
+    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+    if (isPublic) return true;
+    return super.canActivate(context);
   }
 }

@@ -27,7 +27,7 @@ export class UserController {
     return this.userService.create(createUserDto, profilePic?.filename);
   }
 
-  @Get()
+  @Get('all')
   findAll() {
     return this.userService.findAll();
   }
