@@ -1,7 +1,13 @@
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+
 export class CreateUserDto {
+  @IsString()
+  @IsNotEmpty()
   username: string;
+  @IsString()
   firstName: string;
+  @IsString()
   lastName: string;
-  profilePic?: string;
+  @IsNumber()
   age?: number;
 }
