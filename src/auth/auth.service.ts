@@ -1,6 +1,7 @@
 import {
   ConflictException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -10,6 +11,7 @@ import { User } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Auth } from './entities/auth.entity';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
@@ -19,6 +21,8 @@ export class AuthService {
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
     private readonly jwtService: JwtService,
+
+    private readonly configService: ConfigService,
   ) {}
 
   private async generateTokens(user: User) {
@@ -26,11 +30,11 @@ export class AuthService {
 
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload, {
-        secret: process.env.JWT_ACCESS_SECRET,
+        secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
         expiresIn: '15m',
       }),
       this.jwtService.signAsync(payload, {
-        secret: process.env.JWT_REFRESH_SECRET,
+        secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
         expiresIn: '7d',
       }),
     ]);
@@ -41,10 +45,13 @@ export class AuthService {
   private async saveRefreshToken(userId: string, refreshToken: string | null) {
     const hashed = refreshToken ? await bcrypt.hash(refreshToken, 10) : null;
 
-    await this.authRepo.update(
+    const result = await this.authRepo.update(
       { user: { id: userId }, provider: 'local' },
       { refreshToken: hashed },
     );
+    if (result.affected === 0) {
+      throw new NotFoundException('User not found');
+    }
   }
 
   async registerLocal(dto: RegisterLocalDto) {
@@ -99,7 +106,7 @@ export class AuthService {
 
     try {
       payload = await this.jwtService.verifyAsync(token, {
-        secret: process.env.JWT_REFRESH_SECRET,
+        secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
       });
     } catch {
       throw new UnauthorizedException('Invalid or expired refresh token');
