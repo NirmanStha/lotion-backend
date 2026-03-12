@@ -3,7 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
+
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
@@ -46,10 +46,15 @@ export class UserService {
 
   async update(id: string, updateUserDto: UpdateUserDto, profilePic?: string) {
     const user = await this.checkUserExists(id);
-
+    if (updateUserDto.username) {
+      await this.checkUsernameTaken(updateUserDto.username, id);
+    }
     const updatedUser = { ...user, ...updateUserDto };
     if (profilePic) {
-      updatedUser.profilePic = `/uploads/profilePics/${profilePic}`; // 👈 store path
+      updatedUser.profilePic = `/uploads/profilePics/${profilePic}`;
+    }
+    if (updatedUser.firstName && updatedUser.lastName && updatedUser.age) {
+      updatedUser.isComplete = true; // Mark profile as complete if all fields are filled
     }
 
     return this.userRepo.save({
