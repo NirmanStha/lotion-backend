@@ -44,23 +44,24 @@ export class UserService {
     return this.userRepo.findOne({ where: { id, firstName: name } });
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto, profilePic?: string) {
+  async update(id: string, updateUserDto: UpdateUserDto) {
     const user = await this.checkUserExists(id);
+
     if (updateUserDto.username) {
       await this.checkUsernameTaken(updateUserDto.username, id);
     }
+
     const updatedUser = { ...user, ...updateUserDto };
-    if (profilePic) {
-      updatedUser.profilePic = `/uploads/profilePics/${profilePic}`;
-    }
-    if (updatedUser.firstName && updatedUser.lastName && updatedUser.age) {
-      updatedUser.isComplete = true; // Mark profile as complete if all fields are filled
+
+    if (updateUserDto.profilePic) {
+      updatedUser.profilePic = `/uploads/profilePics/${updateUserDto.profilePic}`;
     }
 
-    return this.userRepo.save({
-      ...user,
-      ...updatedUser,
-    });
+    if (updatedUser.firstName && updatedUser.lastName && updatedUser.age) {
+      updatedUser.isComplete = true;
+    }
+
+    return this.userRepo.save(updatedUser);
   }
 
   async remove(id: string) {

@@ -73,6 +73,7 @@ export class UserController {
       id,
       '================in controller=================',
     );
+
     return this.userService.update(id, {
       ...updateUserDto,
       profilePic: profilePic?.filename,
