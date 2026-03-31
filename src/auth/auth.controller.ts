@@ -3,6 +3,7 @@ import { AuthService } from './auth.service';
 import { RegisterLocalDto } from './dto/create-auth.dto';
 import type { Response } from 'express';
 import { Public } from 'src/common/decorator/public.decorator';
+import { GetUser } from 'src/common/decorator/get-user.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -76,10 +77,14 @@ export class AuthController {
     }
   }
   @Post('logout')
-  async logout(@Res({ passthrough: true }) res: Response) {
+  async logout(
+    @GetUser('userId') userId: string,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    console.log('this is contorllelrerererere ', res);
     const refreshToken = res.req.cookies?.['refresh_token'];
     if (refreshToken) {
-      await this.authService.logout(refreshToken);
+      await this.authService.logout(userId);
     }
 
     res.clearCookie('access_token');

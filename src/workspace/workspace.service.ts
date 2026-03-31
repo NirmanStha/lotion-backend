@@ -31,17 +31,13 @@ export class WorkspaceService {
     });
 
     if (workspace) {
-      throw new ConflictException(`Workspace with ID ${name} already exists`);
+      throw new ConflictException(`Workspace with ID "${name}" already exists`);
     }
   }
   async create(createWorkspaceDto: CreateWorkspaceDto, userId: string) {
-    const { name, icon, description } = createWorkspaceDto;
-    await this.checkExistingWorkspace(name, userId);
-
+    await this.checkExistingWorkspace(createWorkspaceDto.name, userId);
     const workspace = this.workspaceRepo.create({
-      name,
-      icon,
-      description,
+      ...createWorkspaceDto,
       owner: { id: userId },
     });
     const savedWorkspace = await this.workspaceRepo.save(workspace);

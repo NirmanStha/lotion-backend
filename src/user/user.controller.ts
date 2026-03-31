@@ -1,22 +1,21 @@
 import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  UseInterceptors,
-  UploadedFile,
-  Req,
   BadRequestException,
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 
-import { UpdateUserDto } from './dto/update-user.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import type { Request } from 'express';
+import { UpdateUserDto } from './dto/update-user.dto';
+
 import { diskStorage } from 'multer';
+import { GetUser } from 'src/common/decorator/get-user.decorator';
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -36,8 +35,10 @@ export class UserController {
   }
 
   @Get('me')
-  findOne(@Req() req: Request) {
-    return this.userService.findOne(req?.user?.['userId']);
+  findOne(@GetUser('userId') user: string) {
+    console.log('this is user id in controller', typeof user, user);
+
+    return this.userService.findOne(user);
   }
 
   @Patch('me')
@@ -62,11 +63,11 @@ export class UserController {
     }),
   )
   updateMe(
-    @Req() req: Request,
+    @GetUser('userId') userId: string,
     @Body() updateUserDto: UpdateUserDto,
     @UploadedFile() profilePic: Express.Multer.File,
   ) {
-    const id = req?.user?.['userId'];
+    const id = userId;
     console.log(
       profilePic,
       updateUserDto,
