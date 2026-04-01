@@ -13,6 +13,7 @@ export enum CollaboratorRole {
   OWNER = 'OWNER',
   EDITOR = 'EDITOR',
   VIEWER = 'VIEWER',
+  GUEST = 'GUEST',
 }
 
 @Entity()

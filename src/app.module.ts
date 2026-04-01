@@ -10,6 +10,7 @@ import { CollaboratorModule } from './collaborator/collaborator.module';
 import { PageModule } from './page/page.module';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './common/gaurd/jwt.auth.gaurd';
+import { PagePremissionModule } from './page-premission/page-premission.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { JwtAuthGuard } from './common/gaurd/jwt.auth.gaurd';
     WorkspaceModule,
     CollaboratorModule,
     PageModule,
+    PagePremissionModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: JwtAuthGuard }],
 })

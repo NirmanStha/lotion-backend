@@ -49,6 +49,8 @@ export class Page {
 
   @Column({ default: false })
   isArchived: boolean;
+  @Column({ default: true })
+  inheritPermissions: boolean;
 
   @CreateDateColumn()
   createdAt: Date;

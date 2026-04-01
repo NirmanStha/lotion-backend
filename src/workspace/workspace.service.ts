@@ -55,10 +55,9 @@ export class WorkspaceService {
     return this.workspaceRepo
       .createQueryBuilder('workspace')
       .leftJoinAndSelect('workspace.owner', 'owner')
-      .leftJoinAndSelect('workspace.collaborators', 'collab')
-      .leftJoinAndSelect('collab.user', 'collabUser')
+
       .where('owner.id = :userId', { userId })
-      .orWhere('collabUser.id = :userId', { userId })
+
       .getMany();
   }
 

@@ -8,17 +8,15 @@ import {
   Patch,
   Post,
   UploadedFile,
-  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { GetUser } from 'src/common/decorator/get-user.decorator';
-import { JwtAuthGuard } from 'src/common/gaurd/jwt.auth.gaurd';
-import { CreateWorkspaceDto } from './dto/create-workspace.dto';
-import { UpdateWorkspaceDto } from './dto/update-workspace.dto';
-import { WorkspaceService } from './workspace.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
+import { GetUser } from 'src/common/decorator/get-user.decorator';
+import { CreateWorkspaceDto } from './dto/create-workspace.dto';
+import { UpdateWorkspaceDto } from './dto/update-workspace.dto';
+import { WorkspaceService } from './workspace.service';
 
 @Controller('workspace')
 export class WorkspaceController {
