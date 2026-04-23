@@ -59,8 +59,6 @@ export class WorkspaceController {
     };
 
     return this.workspaceService.create(workspaceData, userId);
-
-    console.log('Success:', workspaceData);
   }
   @Get()
   findAll(@GetUser('userId') userId: string) {
@@ -80,7 +78,7 @@ export class WorkspaceController {
   update(
     @Param('id') id: string,
     @Body() dto: UpdateWorkspaceDto,
-    @GetUser() userId: string,
+    @GetUser('userId') userId: string,
   ) {
     return this.workspaceService.update(id, dto, userId);
   }
