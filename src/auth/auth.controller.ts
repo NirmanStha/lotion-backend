@@ -1,9 +1,18 @@
-import { Controller, Get, Post, Body, Res, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Res,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterLocalDto } from './dto/create-auth.dto';
-import type { Response } from 'express';
+import type { Request, Response } from 'express';
 import { Public } from 'src/common/decorator/public.decorator';
 import { GetUser } from 'src/common/decorator/get-user.decorator';
+import { JwtRefreshGuard } from './guard/jwt-refresh.gaurd';
 
 @Controller('auth')
 export class AuthController {
@@ -48,13 +57,13 @@ export class AuthController {
   }
 
   @Public()
+  @UseGuards(JwtRefreshGuard)
   @Post('refresh')
-  async refreshTokens(@Res({ passthrough: true }) res: Response) {
-    const refreshToken = res.req.cookies?.['refresh_token'];
-    if (!refreshToken) {
-      return { message: 'No refresh token provided' };
-    }
-
+  async refreshTokens(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const refreshToken = req.cookies?.['refresh_token'];
     try {
       const auth = await this.authService.refreshToken(refreshToken);
 
