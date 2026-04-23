@@ -13,10 +13,10 @@ import {
 @Entity()
 export class Page {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id!: string;
 
   @Column({ default: 'Untitled' })
-  title: string;
+  title!: string;
 
   @Column({ nullable: true })
   icon?: string;
@@ -25,7 +25,7 @@ export class Page {
   coverImage?: string;
 
   @Column({ type: 'jsonb', default: {} })
-  content: any;
+  content!: any;
 
   @ManyToOne(() => Page, (page) => page.subPages, {
     onDelete: 'CASCADE',
@@ -34,27 +34,27 @@ export class Page {
   parentPage?: Page;
 
   @OneToMany(() => Page, (page) => page.parentPage)
-  subPages: Page[];
+  subPages!: Page[];
 
   @ManyToOne(() => Workspace, (workspace) => workspace.pages, {
     onDelete: 'CASCADE',
   })
-  workspace: Workspace;
+  workspace!: Workspace;
 
   @ManyToOne(() => User, (user) => user.createdPages)
-  createdBy: User;
+  createdBy!: User;
 
   @Column({ default: false })
-  isPublished: boolean;
+  isPublished!: boolean;
 
   @Column({ default: false })
-  isArchived: boolean;
+  isArchived!: boolean;
   @Column({ default: true })
-  inheritPermissions: boolean;
+  inheritPermissions!: boolean;
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt!: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt!: Date;
 }

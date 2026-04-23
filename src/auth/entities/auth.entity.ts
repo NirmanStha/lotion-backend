@@ -12,33 +12,33 @@ import { User } from 'src/user/entities/user.entity';
 @Entity()
 export class Auth {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id!: string;
 
   @Column()
-  provider: string;
+  provider!: string;
 
   @Column()
-  providerId: string;
+  providerId!: string;
 
   @Column({ unique: true })
-  username: string;
+  username!: string;
 
   @Column({ unique: true })
-  email: string;
+  email!: string;
 
   @Column()
-  password: string;
+  password!: string;
 
   @Column({ type: 'text', unique: true, nullable: true, default: null })
   refreshToken?: string | null;
 
   @ManyToOne(() => User, (user) => user.authProviders, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'userId' })
-  user: User;
+  user!: User;
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt!: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt!: Date;
 }

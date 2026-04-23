@@ -7,9 +7,10 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { ModuleRef } from '@nestjs/core';
-import { CHECK_POLICIES_KEY } from '../decorators/check-policies.decorator';
-import { IPolicyHandler } from '../interfaces/policy-handler.interface';
+import { CHECK_POLICY_KEY } from '../decorator/check-policy.decorator';
+import type { IPolicyHandler } from '../interface/policy-handler.interface';
 
+type PolicyHandlerConstructor = new (...args: any[]) => IPolicyHandler;
 @Injectable()
 export class PoliciesGuard implements CanActivate {
   constructor(
@@ -18,11 +19,11 @@ export class PoliciesGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const policyClasses = this.reflector.getAllAndOverride
-      (new (...args: any[]) => IPolicyHandler)[]
-    >(CHECK_POLICIES_KEY, [context.getHandler(), context.getClass()]);
+    const policyClasses = this.reflector.getAllAndOverride<
+      PolicyHandlerConstructor[]
+    >(CHECK_POLICY_KEY, [context.getHandler(), context.getClass()]);
 
-    // No @CheckPolicies on this route, let it through
+    // No @CheckPolicy on this route, let it through
     if (!policyClasses?.length) return true;
 
     // Resolve each policy class from NestJS DI container

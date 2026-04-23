@@ -16,23 +16,23 @@ export enum PageRole {
 @Entity()
 export class PagePremission {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id!: string;
 
   @ManyToOne(() => Page, { onDelete: 'CASCADE' })
-  page: Page;
+  page!: Page;
 
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
-  user: User;
+  user!: User;
 
   @Column({ type: 'enum', enum: PageRole })
-  role: PageRole;
+  role!: PageRole;
 
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
-  grantedby: User;
+  grantedby!: User;
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt!: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt!: Date;
 }

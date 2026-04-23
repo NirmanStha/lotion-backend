@@ -19,28 +19,28 @@ export enum CollaboratorRole {
 @Entity()
 export class WorkspaceCollaborator {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id!: string;
 
   @ManyToOne(() => Workspace, (workspace) => workspace.collaborators, {
     onDelete: 'CASCADE',
   })
-  workspace: Workspace;
+  workspace!: Workspace;
 
   @ManyToOne(() => User, (user) => user.collaborations, {
     onDelete: 'CASCADE',
   })
-  user: User;
+  user!: User;
 
   @Column({
     type: 'enum',
     enum: CollaboratorRole,
     default: CollaboratorRole.VIEWER,
   })
-  role: CollaboratorRole;
+  role!: CollaboratorRole;
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt!: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt!: Date;
 }

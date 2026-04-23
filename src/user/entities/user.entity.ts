@@ -15,16 +15,16 @@ import { Page } from 'src/page/entities/page.entity';
 @Entity()
 export class User {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id!: string;
 
   @Column({ nullable: true })
-  firstName: string;
+  firstName!: string;
 
   @Column({ nullable: true })
-  lastName: string;
+  lastName!: string;
 
   @Column({ unique: true })
-  username: string;
+  username!: string;
 
   @Column({ nullable: true })
   profilePic?: string;
@@ -33,23 +33,23 @@ export class User {
   age?: string;
 
   @Column({ default: false })
-  isComplete: boolean;
+  isComplete!: boolean;
 
   @OneToMany(() => Auth, (auth) => auth.user)
-  authProviders: Auth[];
+  authProviders!: Auth[];
 
   @OneToMany(() => Workspace, (workspace) => workspace.owner)
-  ownedWorkspaces: Workspace[];
+  ownedWorkspaces!: Workspace[];
 
   @OneToMany(() => WorkspaceCollaborator, (collab) => collab.user)
-  collaborations: WorkspaceCollaborator[];
+  collaborations!: WorkspaceCollaborator[];
 
   @OneToMany(() => Page, (page) => page.createdBy)
-  createdPages: Page[];
+  createdPages!: Page[];
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt!: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt!: Date;
 }

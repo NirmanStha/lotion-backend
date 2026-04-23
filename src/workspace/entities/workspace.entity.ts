@@ -14,10 +14,10 @@ import { WorkspaceCollaborator } from 'src/collaborator/entities/collaborator.en
 @Entity()
 export class Workspace {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id!: string;
 
   @Column()
-  name: string;
+  name!: string;
 
   @Column({ nullable: true })
   icon?: string;
@@ -28,17 +28,17 @@ export class Workspace {
   @ManyToOne(() => User, (user) => user.ownedWorkspaces, {
     onDelete: 'CASCADE',
   })
-  owner: User;
+  owner!: User;
 
   @OneToMany(() => Page, (page) => page.workspace)
-  pages: Page[];
+  pages!: Page[];
 
   @OneToMany(() => WorkspaceCollaborator, (collab) => collab.workspace)
-  collaborators: WorkspaceCollaborator[];
+  collaborators!: WorkspaceCollaborator[];
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt!: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt!: Date;
 }
