@@ -47,6 +47,7 @@ export class AuthController {
     return { message: 'User profile endpoint' };
   }
 
+  @Public()
   @Post('refresh')
   async refreshTokens(@Res({ passthrough: true }) res: Response) {
     const refreshToken = res.req.cookies?.['refresh_token'];
