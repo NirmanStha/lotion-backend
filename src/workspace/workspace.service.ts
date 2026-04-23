@@ -54,8 +54,13 @@ export class WorkspaceService {
   async findAll(userId: string) {
     return this.workspaceRepo
       .createQueryBuilder('workspace')
-      .leftJoinAndSelect('workspace.owner', 'owner')
-
+      .leftJoin('workspace.owner', 'owner')
+      .addSelect([
+        'owner.id',
+        'owner.firstName',
+        'owner.lastName',
+        'owner.profilePic',
+      ])
       .where('owner.id = :userId', { userId })
 
       .getMany();
