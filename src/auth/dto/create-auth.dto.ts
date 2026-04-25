@@ -9,7 +9,7 @@ import {
 export class RegisterLocalDto {
   @IsEmail()
   @IsNotEmpty()
-  email: string;
+  email!: string;
 
   @IsStrongPassword({
     minLength: 8,
@@ -18,7 +18,11 @@ export class RegisterLocalDto {
     minNumbers: 1,
     minSymbols: 1,
   })
-  password: string;
+  password!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  username!: string;
 }
 
 export enum AuthProvider {
@@ -29,9 +33,9 @@ export enum AuthProvider {
 
 export class OAuthLoginDto {
   @IsEnum(AuthProvider)
-  provider: AuthProvider;
+  provider!: AuthProvider;
 
   @IsString()
   @IsNotEmpty()
-  accessToken: string; // or idToken
+  accessToken!: string; // or idToken
 }

@@ -55,7 +55,7 @@ export class AuthService {
   }
 
   async registerLocal(dto: RegisterLocalDto) {
-    const { email, password } = dto;
+    const { email, password, username } = dto;
 
     const existingUser = await this.authRepo.findOne({
       where: { provider: 'local', providerId: email },
@@ -67,7 +67,11 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     return this.authRepo.manager.transaction(async (manager) => {
-      const user = this.userRepo.create({ isComplete: false });
+      const user = this.userRepo.create({
+        username: username,
+        isComplete: false,
+      });
+
       await manager.save(user);
 
       const auth = this.authRepo.create({
@@ -76,7 +80,7 @@ export class AuthService {
 
         email,
         password: hashedPassword,
-        user,
+        user: user,
       });
       await manager.save(auth);
 
