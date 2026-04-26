@@ -8,7 +8,7 @@ import {
   Req,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { RegisterLocalDto } from './dto/create-auth.dto';
+import { RegisterLocalDto, LoginDto } from './dto/create-auth.dto';
 import type { Request, Response } from 'express';
 import { Public } from 'src/common/decorator/public.decorator';
 import { GetUser } from 'src/common/decorator/get-user.decorator';
@@ -20,7 +20,7 @@ export class AuthController {
   @Public()
   @Post('local/login')
   async login(
-    @Body() createAuthDto: RegisterLocalDto,
+    @Body() createAuthDto: LoginDto,
     @Res({ passthrough: true }) res: Response,
   ) {
     const { email, password } = createAuthDto;
@@ -31,7 +31,7 @@ export class AuthController {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 15 * 60 * 1000, // 15 minutes
+      maxAge: 21600000, // 6 hours
     });
 
     res.cookie('refresh_token', auth.refreshToken, {
@@ -48,12 +48,6 @@ export class AuthController {
   @Post('local/register')
   register(@Body() createAuthDto: RegisterLocalDto) {
     return this.authService.registerLocal(createAuthDto);
-  }
-
-  @Get('profile')
-  getProfile() {
-    // This is a placeholder. You would need to implement logic to get the authenticated user's profile.
-    return { message: 'User profile endpoint' };
   }
 
   @Public()

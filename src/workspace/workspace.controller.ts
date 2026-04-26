@@ -49,13 +49,9 @@ export class WorkspaceController {
     @GetUser('userId') userId: string,
     @UploadedFile() icon?: Express.Multer.File, // Note: icon will be undefined if filter fails
   ) {
-    if (!icon) {
-      throw new BadRequestException('Icon file is required or invalid format');
-    }
-
     const workspaceData = {
       ...dto,
-      icon: icon.filename,
+      icon: icon?.filename,
     };
 
     return this.workspaceService.create(workspaceData, userId);
@@ -75,12 +71,36 @@ export class WorkspaceController {
   }
 
   @Patch(':id')
+  @UseInterceptors(
+    FileInterceptor('icon', {
+      storage: diskStorage({
+        destination: './uploads/workspaceIcons',
+        filename: (req, file, cb) => {
+          const uniqueSuffix =
+            Date.now() + '-' + Math.round(Math.random() * 1e9);
+          // Use extname to safely get the extension with the dot
+          cb(
+            null,
+            `${file.fieldname}-${uniqueSuffix}${extname(file.originalname)}`,
+          );
+        },
+      }),
+      fileFilter: (req, file, cb) => {
+        if (!file.mimetype.match(/\/(jpg|jpeg|png|gif|webp)$/)) {
+          return cb(new Error('Unsupported file type'), false);
+        }
+        cb(null, true);
+      },
+    }),
+  )
   update(
     @Param('id') id: string,
     @Body() dto: UpdateWorkspaceDto,
     @GetUser('userId') userId: string,
+    @UploadedFile() icon?: Express.Multer.File,
   ) {
-    return this.workspaceService.update(id, dto, userId);
+    console.log('this is controller', icon);
+    return this.workspaceService.update(id, dto, userId, icon?.filename);
   }
 
   @Delete(':id')
