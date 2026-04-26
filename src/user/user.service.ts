@@ -3,11 +3,13 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { plainToInstance } from 'class-transformer';
 
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
+import { UserResponseDto } from './dto/user.response.dto';
 
 @Injectable()
 export class UserService {
@@ -37,11 +39,25 @@ export class UserService {
   }
 
   findAll() {
-    return this.userRepo.find();
+    const users = this.userRepo.find();
+
+    return plainToInstance(UserResponseDto, users, {
+      excludeExtraneousValues: true,
+    });
   }
 
-  findOne(id: string, name?: string) {
-    return this.userRepo.findOne({ where: { id, firstName: name } });
+  async findOne(id: string, name?: string): Promise<UserResponseDto | null> {
+    const user = await this.userRepo.findOne({
+      where: { id, firstName: name },
+    });
+
+    if (!user) {
+      return null;
+    }
+
+    return plainToInstance(UserResponseDto, user, {
+      excludeExtraneousValues: true,
+    });
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
