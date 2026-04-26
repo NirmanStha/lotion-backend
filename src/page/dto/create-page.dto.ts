@@ -1,8 +1,48 @@
+import {
+  IsBoolean,
+  IsObject,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from 'class-validator';
+
 export class CreatePageDto {
-  title: string;
+  @IsOptional()
+  @IsString()
+  title?: string;
+
+  @IsOptional()
+  @IsString()
   icon?: string;
+
+  @IsOptional()
+  @IsString()
   coverImage?: string;
-  content?: any;
+
+  @IsOptional()
+  @IsObject()
+  content?: Record<string, unknown>;
+
+  @IsOptional()
+  @IsUUID()
   parentPageId?: string;
-  workspaceId: string;
+
+  @IsUUID()
+  workspaceId!: string;
+
+  @IsOptional()
+  @IsUUID()
+  createdById?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  isPublished?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  isArchived?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  inheritPermissions?: boolean;
 }
