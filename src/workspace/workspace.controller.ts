@@ -17,33 +17,13 @@ import { GetUser } from 'src/common/decorator/get-user.decorator';
 import { CreateWorkspaceDto } from './dto/create-workspace.dto';
 import { UpdateWorkspaceDto } from './dto/update-workspace.dto';
 import { WorkspaceService } from './workspace.service';
+import { createFileInterceptor } from 'src/common/inteceptor/file-intercept.interceptor';
 
 @Controller('workspace')
 export class WorkspaceController {
   constructor(private readonly workspaceService: WorkspaceService) {}
   @Post()
-  @UseInterceptors(
-    FileInterceptor('icon', {
-      storage: diskStorage({
-        destination: './uploads/workspaceIcons',
-        filename: (req, file, cb) => {
-          const uniqueSuffix =
-            Date.now() + '-' + Math.round(Math.random() * 1e9);
-          // Use extname to safely get the extension with the dot
-          cb(
-            null,
-            `${file.fieldname}-${uniqueSuffix}${extname(file.originalname)}`,
-          );
-        },
-      }),
-      fileFilter: (req, file, cb) => {
-        if (!file.mimetype.match(/\/(jpg|jpeg|png|gif|webp)$/)) {
-          return cb(new Error('Unsupported file type'), false);
-        }
-        cb(null, true);
-      },
-    }),
-  )
+  @UseInterceptors(createFileInterceptor('icon', './uploads/workspaceIcons'))
   create(
     @Body() dto: CreateWorkspaceDto,
     @GetUser('userId') userId: string,
@@ -71,28 +51,7 @@ export class WorkspaceController {
   }
 
   @Patch(':id')
-  @UseInterceptors(
-    FileInterceptor('icon', {
-      storage: diskStorage({
-        destination: './uploads/workspaceIcons',
-        filename: (req, file, cb) => {
-          const uniqueSuffix =
-            Date.now() + '-' + Math.round(Math.random() * 1e9);
-          // Use extname to safely get the extension with the dot
-          cb(
-            null,
-            `${file.fieldname}-${uniqueSuffix}${extname(file.originalname)}`,
-          );
-        },
-      }),
-      fileFilter: (req, file, cb) => {
-        if (!file.mimetype.match(/\/(jpg|jpeg|png|gif|webp)$/)) {
-          return cb(new Error('Unsupported file type'), false);
-        }
-        cb(null, true);
-      },
-    }),
-  )
+  @UseInterceptors(createFileInterceptor('icon', './uploads/workspaceIcons'))
   update(
     @Param('id') id: string,
     @Body() dto: UpdateWorkspaceDto,

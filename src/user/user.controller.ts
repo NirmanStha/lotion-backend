@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -11,23 +10,13 @@ import {
 } from '@nestjs/common';
 import { UserService } from './user.service';
 
-import { FileInterceptor } from '@nestjs/platform-express';
 import { UpdateUserDto } from './dto/update-user.dto';
 
-import { diskStorage } from 'multer';
 import { GetUser } from 'src/common/decorator/get-user.decorator';
+import { createFileInterceptor } from 'src/common/inteceptor/file-intercept.interceptor';
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
-
-  // @Post('create')
-  // @UseInterceptors(FileInterceptor('profilePic'))
-  // create(
-  //   @Body() createUserDto: CreateUserDto,
-  //   @UploadedFile() profilePic: Express.Multer.File,
-  // ) {
-  //   return this.userService.create(createUserDto, profilePic?.filename);
-  // }
 
   @Get('all')
   findAll() {
@@ -42,26 +31,7 @@ export class UserController {
   }
 
   @Patch('me')
-  @UseInterceptors(
-    FileInterceptor('profilePic', {
-      storage: diskStorage({
-        destination: './uploads/profilePics',
-        filename: (req, file, cb) => {
-          const uniqueSuffix =
-            Date.now() + '-' + Math.round(Math.random() * 1e9);
-          const ext = file.originalname.split('.').pop();
-          cb(null, `${file.fieldname}-${uniqueSuffix}.${ext}`);
-        },
-      }),
-      fileFilter: (req, file, cb) => {
-        if (!file.mimetype.match(/\/(jpg|jpeg|png|gif|webp)$/)) {
-          return cb(new BadRequestException('Only image files allowed'), false);
-        } else {
-          cb(null, true);
-        }
-      },
-    }),
-  )
+  @UseInterceptors(createFileInterceptor('profilePic', './uploads/profilePics'))
   updateMe(
     @GetUser('userId') userId: string,
     @Body() updateUserDto: UpdateUserDto,
