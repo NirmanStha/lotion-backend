@@ -39,3 +39,13 @@ export class OAuthLoginDto {
   @IsNotEmpty()
   accessToken!: string; // or idToken
 }
+
+export class LoginDto {
+  @IsEmail()
+  @IsNotEmpty()
+  email!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  password!: string;
+}

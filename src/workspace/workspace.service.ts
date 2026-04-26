@@ -139,6 +139,7 @@ export class WorkspaceService {
     id: string,
     updateWorkspaceDto: UpdateWorkspaceDto,
     userId: string,
+    iconFilename?: string,
   ) {
     const workspace = await this.workspaceRepo.findOne({
       where: {
@@ -150,9 +151,11 @@ export class WorkspaceService {
     if (!workspace) {
       throw new NotFoundException(`Workspace with ID ${id} not found`);
     }
+    console.log(workspace, 'this is workspace', iconFilename);
     return this.workspaceRepo.save({
       ...workspace,
       ...updateWorkspaceDto,
+      icon: iconFilename || workspace.icon,
     });
   }
 
