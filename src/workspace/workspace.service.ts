@@ -13,12 +13,14 @@ import {
   CollaboratorRole,
   WorkspaceCollaborator,
 } from 'src/collaborator/entities/collaborator.entity';
+import { APIResponse } from 'src/common/dtos/api-response.dto';
 
 @Injectable()
 export class WorkspaceService {
   constructor(
     @InjectRepository(Workspace)
     private readonly workspaceRepo: Repository<Workspace>,
+
     @InjectRepository(Page)
     private readonly pageRepo: Repository<Page>,
     @InjectRepository(WorkspaceCollaborator)
@@ -36,6 +38,7 @@ export class WorkspaceService {
   }
   async create(createWorkspaceDto: CreateWorkspaceDto, userId: string) {
     await this.checkExistingWorkspace(createWorkspaceDto.name, userId);
+
     const workspace = this.workspaceRepo.create({
       ...createWorkspaceDto,
       owner: { id: userId },
@@ -46,8 +49,13 @@ export class WorkspaceService {
       user: { id: userId },
       role: CollaboratorRole.OWNER,
     });
+
     await this.collaboratorRepo.save(collaborator);
-    return savedWorkspace;
+    console.log(savedWorkspace);
+    return APIResponse.success(
+      'Workspace created successfully',
+      savedWorkspace,
+    );
   }
 
   //get all workspaces for a user
