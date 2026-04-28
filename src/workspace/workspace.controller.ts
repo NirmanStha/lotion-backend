@@ -58,7 +58,7 @@ export class WorkspaceController {
     @GetUser('userId') userId: string,
     @UploadedFile() icon?: Express.Multer.File,
   ) {
-    console.log('this is controller', icon);
+    console.log('this is controller', dto);
     return this.workspaceService.update(id, dto, userId, icon?.filename);
   }
 

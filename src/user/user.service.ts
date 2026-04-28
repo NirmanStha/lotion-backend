@@ -49,6 +49,7 @@ export class UserService {
   async findOne(id: string, name?: string): Promise<UserResponseDto | null> {
     const user = await this.userRepo.findOne({
       where: { id, firstName: name },
+      relations: ['authProviders'],
     });
 
     if (!user) {
@@ -63,21 +64,23 @@ export class UserService {
   async update(id: string, updateUserDto: UpdateUserDto) {
     const user = await this.checkUserExists(id);
 
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+
     if (updateUserDto.username) {
       await this.checkUsernameTaken(updateUserDto.username, id);
     }
 
-    const updatedUser = { ...user, ...updateUserDto };
+    this.userRepo.update(id, updateUserDto);
+    const updatedUser = await this.userRepo.findOne({
+      where: { id },
+      relations: ['authProviders'],
+    });
 
-    if (updateUserDto.profilePic) {
-      updatedUser.profilePic = `/uploads/profilePics/${updateUserDto.profilePic}`;
-    }
-
-    if (updatedUser.firstName && updatedUser.lastName && updatedUser.age) {
-      updatedUser.isComplete = true;
-    }
-
-    return this.userRepo.save(updatedUser);
+    return plainToInstance(UserResponseDto, updatedUser, {
+      excludeExtraneousValues: true,
+    });
   }
 
   async remove(id: string) {
