@@ -29,6 +29,7 @@ async function bootstrap() {
       transform: true,
       whitelist: true,
       forbidNonWhitelisted: true,
+      skipUndefinedProperties: true,
     }),
   );
   await app.listen(process.env.PORT ?? 3000);

@@ -25,8 +25,6 @@ export class UserController {
 
   @Get('me')
   findOne(@GetUser('userId') user: string) {
-    console.log('this is user id in controller', typeof user, user);
-
     return this.userService.findOne(user);
   }
 
@@ -38,16 +36,11 @@ export class UserController {
     @UploadedFile() profilePic: Express.Multer.File,
   ) {
     const id = userId;
-    console.log(
-      profilePic,
-      updateUserDto,
-      id,
-      '================in controller=================',
-    );
+    console.log('this is conrtoell', updateUserDto);
 
     return this.userService.update(id, {
       ...updateUserDto,
-      profilePic: profilePic?.filename,
+      ...(profilePic && { profilePic: profilePic.filename }),
     });
   }
 
