@@ -3,6 +3,8 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import cookieParser from 'cookie-parser';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { requestIdMiddleware } from './common/logger/request-id.middleware';
+import { HttpLoggingInterceptor } from './common/logger/http-logging.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -11,6 +13,8 @@ async function bootstrap() {
     origin: true,
     credentials: true,
   });
+  app.use(requestIdMiddleware);
+  app.useGlobalInterceptors(new HttpLoggingInterceptor());
   const swag = new DocumentBuilder()
     .setTitle('NestJS Auth API')
     .setDescription('API documentation for the NestJS authentication system')

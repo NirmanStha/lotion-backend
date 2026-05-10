@@ -7,6 +7,7 @@ import {
   Patch,
   Post,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { GetUser } from 'src/common/decorator/get-user.decorator';
@@ -14,6 +15,12 @@ import { createFileInterceptor } from 'src/common/inteceptor/file-intercept.inte
 import { CreateWorkspaceDto } from './dto/create-workspace.dto';
 import { UpdateWorkspaceDto } from './dto/update-workspace.dto';
 import { WorkspaceService } from './workspace.service';
+import { PoliciesGuard } from 'src/access-control/gaurd/policies.gaurd';
+import { CheckPolicy } from 'src/access-control/decorator/check-policy.decorator';
+import { PolicyMeta } from 'src/access-control/decorator/policy-meta.decorator';
+import { WorkspacePermission } from 'src/access-control/enums/permission.enum';
+import { WorkspaceCrudPolicy } from './policies/workspace-crud.policy';
+import { DeleteWorkspacePolicy } from 'src/access-control/policies/workspace/workspace.delete.policy';
 
 @Controller('workspace')
 export class WorkspaceController {
@@ -46,6 +53,9 @@ export class WorkspaceController {
     return this.workspaceService.findOne(id, userId);
   }
 
+  @UseGuards(PoliciesGuard)
+  @CheckPolicy(WorkspaceCrudPolicy)
+  @PolicyMeta({ permission: WorkspacePermission.UPDATE, param: 'id' })
   @Patch(':id')
   @UseInterceptors(createFileInterceptor('icon', './uploads/workspaceIcons'))
   update(
@@ -59,6 +69,8 @@ export class WorkspaceController {
   }
 
   @Delete(':id')
+  @UseGuards(PoliciesGuard)
+  @CheckPolicy(DeleteWorkspacePolicy)
   remove(@Param('id') id: string, @GetUser('userId') userId: string) {
     return this.workspaceService.remove(id, userId);
   }

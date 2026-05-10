@@ -7,9 +7,13 @@ import { Page } from 'src/page/entities/page.entity';
 import { Workspace } from './entities/workspace.entity';
 
 import { WorkspaceCollaborator } from 'src/collaborator/entities/collaborator.entity';
+import { WorkspacePolicyModule } from './policies/workspace-policy.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Workspace, Page, WorkspaceCollaborator])],
+  imports: [
+    TypeOrmModule.forFeature([Workspace, Page, WorkspaceCollaborator]),
+    WorkspacePolicyModule,
+  ],
   controllers: [WorkspaceController],
   providers: [WorkspaceService],
 })

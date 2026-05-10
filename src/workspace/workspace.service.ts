@@ -14,7 +14,8 @@ import {
   WorkspaceCollaborator,
 } from 'src/collaborator/entities/collaborator.entity';
 import { APIResponse } from 'src/common/dtos/api-response.dto';
-
+import { AccessControlService } from 'src/access-control/access-control.service';
+import { WorkspacePermission } from 'src/access-control/enums/permission.enum';
 @Injectable()
 export class WorkspaceService {
   constructor(
@@ -25,6 +26,8 @@ export class WorkspaceService {
     private readonly pageRepo: Repository<Page>,
     @InjectRepository(WorkspaceCollaborator)
     private readonly collaboratorRepo: Repository<WorkspaceCollaborator>,
+
+    private readonly accessControlService: AccessControlService,
   ) {}
 
   private async checkExistingWorkspace(name: string, userId: string) {
@@ -75,6 +78,17 @@ export class WorkspaceService {
   }
 
   async findOne(workspaceId: string, userId: string) {
+    const hasAccess = await this.accessControlService.canAccessWorkspace(
+      userId,
+      workspaceId,
+      WorkspacePermission.READ,
+    );
+
+    if (!hasAccess) {
+      throw new NotFoundException(
+        `Workspace is not accessible or does not exist`,
+      );
+    }
     const workspace = await this.workspaceRepo.findOne({
       where: {
         id: workspaceId,
@@ -84,7 +98,7 @@ export class WorkspaceService {
     });
 
     if (!workspace) {
-      throw new Error(`Workspace with ID ${workspaceId} not found`);
+      throw new NotFoundException(`Workspace with ID ${workspaceId} not found`);
     }
     return workspace;
   }
@@ -149,6 +163,17 @@ export class WorkspaceService {
     userId: string,
     iconFilename?: string,
   ) {
+    const canUpdate = await this.accessControlService.canAccessWorkspace(
+      userId,
+      id,
+      WorkspacePermission.UPDATE,
+    );
+
+    if (!canUpdate) {
+      return APIResponse.error(
+        'You do not have permission to update this workspace',
+      );
+    }
     const workspace = await this.workspaceRepo.findOne({
       where: {
         id,

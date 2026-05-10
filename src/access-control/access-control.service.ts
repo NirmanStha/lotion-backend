@@ -10,13 +10,12 @@ import {
 } from 'src/page-premission/entities/page-premission.entity';
 import { Page } from 'src/page/entities/page.entity';
 import { Workspace } from 'src/workspace/entities/workspace.entity';
-import { Repository } from 'typeorm/browser/repository/Repository.js';
+import { Repository } from 'typeorm';
 import {
   WorkspacePermission,
   PagePermissionEnum,
 } from './enums/permission.enum';
 import { RolePermissions } from './maps/role-permission.map';
-import { permission } from 'process';
 
 @Injectable()
 export class AccessControlService {

@@ -6,6 +6,9 @@ import { PagePremission } from 'src/page-premission/entities/page-premission.ent
 import { Page } from 'src/page/entities/page.entity';
 import { Workspace } from 'src/workspace/entities/workspace.entity';
 import { AccessControlService } from './access-control.service';
+import { PoliciesGuard } from './gaurd/policies.gaurd';
+import { UpdateWorkspacePolicy } from './policies/workspace/workspace.update.policy';
+import { DeleteWorkspacePolicy } from './policies/workspace/workspace.delete.policy';
 
 @Module({
   imports: [
@@ -16,6 +19,17 @@ import { AccessControlService } from './access-control.service';
       PagePremission,
     ]),
   ],
-  providers: [AccessControlService],
+  providers: [
+    AccessControlService,
+    PoliciesGuard,
+    UpdateWorkspacePolicy,
+    DeleteWorkspacePolicy,
+  ],
+  exports: [
+    AccessControlService,
+    PoliciesGuard,
+    UpdateWorkspacePolicy,
+    DeleteWorkspacePolicy,
+  ],
 })
 export class AccessControlModule {}
