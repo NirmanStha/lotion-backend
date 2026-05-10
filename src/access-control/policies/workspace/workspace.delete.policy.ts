@@ -5,21 +5,21 @@ import { IPolicyHandler } from 'src/access-control/interface/policy-handler.inte
 
 @Injectable()
 export class DeleteWorkspacePolicy implements IPolicyHandler {
-	constructor(private readonly accessControl: AccessControlService) {}
+  constructor(private readonly accessControl: AccessControlService) {}
 
-	async handle(context: ExecutionContext): Promise<boolean> {
-		const request = context.switchToHttp().getRequest();
-		const userId = request.user?.userId;
-		const workspaceId = request.params?.id;
+  async handle(context: ExecutionContext): Promise<boolean> {
+    const request = context.switchToHttp().getRequest();
+    const userId = request.user?.userId;
+    const workspaceId = request.params?.id;
 
-		if (!userId || !workspaceId) {
-			return false;
-		}
+    if (!userId || !workspaceId) {
+      return false;
+    }
 
-		return this.accessControl.canAccessWorkspace(
-			userId,
-			workspaceId,
-			WorkspacePermission.DELETE,
-		);
-	}
+    return this.accessControl.canAccessWorkspace(
+      userId,
+      workspaceId,
+      WorkspacePermission.DELETE,
+    );
+  }
 }
