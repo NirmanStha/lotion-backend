@@ -39,7 +39,9 @@ export class UserService {
   }
 
   findAll() {
-    const users = this.userRepo.find();
+    const users = this.userRepo.find({
+      relations: ['authProviders'],
+    });
 
     return plainToInstance(UserResponseDto, users, {
       excludeExtraneousValues: true,

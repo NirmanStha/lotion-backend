@@ -1,6 +1,7 @@
 import {
   ConflictException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateWorkspaceDto } from './dto/create-workspace.dto';
@@ -92,7 +93,6 @@ export class WorkspaceService {
     const workspace = await this.workspaceRepo.findOne({
       where: {
         id: workspaceId,
-        owner: { id: userId },
       },
       relations: ['owner', 'collaborators'],
     });
@@ -100,22 +100,42 @@ export class WorkspaceService {
     if (!workspace) {
       throw new NotFoundException(`Workspace with ID ${workspaceId} not found`);
     }
-    return workspace;
+    const res = APIResponse.success(
+      'Workspace retrieved successfully',
+      workspace,
+    );
+    return res;
   }
 
   async findOneWithPages(workspaceId: string, userId: string) {
+    const hasAccess = await this.accessControlService.canAccessWorkspace(
+      userId,
+      workspaceId,
+      WorkspacePermission.READ,
+    );
+
+    if (!hasAccess) {
+      throw new NotFoundException(
+        APIResponse.error(`Workspace is not accessible or does not exist`),
+      );
+    }
     const workspace = await this.workspaceRepo.findOne({
       where: {
         id: workspaceId,
-        owner: { id: userId },
       },
       relations: ['owner', 'collaborators', 'pages'],
     });
 
     if (!workspace) {
-      throw new Error(`Workspace with ID ${workspaceId} not found`);
+      throw new NotFoundException(
+        APIResponse.error(`Workspace with ID ${workspaceId} not found`),
+      );
     }
-    return workspace;
+
+    return APIResponse.success(
+      'Workspace with pages retrieved successfully',
+      workspace,
+    );
   }
   //get one workspace by id
   //   findOne(workspaceId: string, userId: string) {
@@ -177,8 +197,8 @@ export class WorkspaceService {
     const workspace = await this.workspaceRepo.findOne({
       where: {
         id,
-        owner: { id: userId },
       },
+      relations: ['owner', 'collaborators'],
     });
 
     if (!workspace) {
@@ -193,18 +213,31 @@ export class WorkspaceService {
   }
 
   async remove(id: string, userId: string) {
+    const canDelete = await this.accessControlService.canAccessWorkspace(
+      userId,
+      id,
+      WorkspacePermission.DELETE,
+    );
+
+    if (!canDelete) {
+      return APIResponse.error(
+        'You do not have permission to delete this workspace',
+      );
+    }
     const workspace = await this.workspaceRepo.findOne({
       where: {
         id,
-        owner: { id: userId },
       },
+      relations: ['owner', 'collaborators'],
     });
-
+    Logger.log(workspace, 'this is workspace in remove');
     if (!workspace) {
-      throw new NotFoundException(`Workspace with ID ${id} not found`);
+      throw new NotFoundException(
+        APIResponse.error(`Workspace with ID ${id} not found`),
+      );
     }
 
     await this.workspaceRepo.remove(workspace);
-    return `Workspace with ID ${id} removed`;
+    return APIResponse.success('Workspace deleted successfully');
   }
 }

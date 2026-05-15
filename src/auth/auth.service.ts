@@ -12,6 +12,7 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Auth } from './entities/auth.entity';
 import { ConfigService } from '@nestjs/config';
+import { APIResponse } from 'src/common/dtos/api-response.dto';
 
 @Injectable()
 export class AuthService {
@@ -61,9 +62,15 @@ export class AuthService {
       where: { provider: 'local', providerId: email },
     });
     if (existingUser) {
-      throw new ConflictException('User with this email already exists');
+      throw new ConflictException(APIResponse.error('Email already in use'));
     }
 
+    const existingUsername = await this.userRepo.findOne({
+      where: { username },
+    });
+    if (existingUsername) {
+      throw new ConflictException(APIResponse.error('Username already in use'));
+    }
     const hashedPassword = await bcrypt.hash(password, 10);
 
     return this.authRepo.manager.transaction(async (manager) => {
@@ -93,11 +100,12 @@ export class AuthService {
       where: { provider: 'local', providerId: email },
       relations: ['user'],
     });
-    if (!auth) throw new UnauthorizedException('Invalid credentials');
+    if (!auth)
+      throw new UnauthorizedException(APIResponse.error('Invalid credentials'));
 
     const isPasswordValid = await bcrypt.compare(password, auth.password);
     if (!isPasswordValid)
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException(APIResponse.error('Invalid credentials'));
 
     const tokens = await this.generateTokens(auth.user);
     await this.saveRefreshToken(auth.user.id, tokens.refreshToken);
@@ -113,17 +121,21 @@ export class AuthService {
         secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
       });
     } catch {
-      throw new UnauthorizedException('Invalid or expired refresh token');
+      throw new UnauthorizedException(
+        APIResponse.error('Invalid or expired refresh token'),
+      );
     }
 
     const auth = await this.authRepo.findOne({
       where: { user: { id: payload.sub }, provider: 'local' },
       relations: ['user'],
     });
-    if (!auth?.refreshToken) throw new UnauthorizedException('Token revoked');
+    if (!auth?.refreshToken)
+      throw new UnauthorizedException(APIResponse.error('Token revoked'));
 
     const tokenMatches = await bcrypt.compare(token, auth.refreshToken);
-    if (!tokenMatches) throw new UnauthorizedException('Token mismatch');
+    if (!tokenMatches)
+      throw new UnauthorizedException(APIResponse.error('Token mismatch'));
 
     const tokens = await this.generateTokens(auth.user);
     await this.saveRefreshToken(auth.user.id, tokens.refreshToken);

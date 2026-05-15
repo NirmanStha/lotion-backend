@@ -1,15 +1,27 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { CollaboratorService } from './collaborator.service';
 import { CreateCollaboratorDto } from './dto/create-collaborator.dto';
 import { UpdateCollaboratorDto } from './dto/update-collaborator.dto';
+import { GetUser } from 'src/common/decorator/get-user.decorator';
 
 @Controller('collaborator')
 export class CollaboratorController {
   constructor(private readonly collaboratorService: CollaboratorService) {}
 
   @Post()
-  create(@Body() createCollaboratorDto: CreateCollaboratorDto) {
-    return this.collaboratorService.create(createCollaboratorDto);
+  create(
+    @Body() createCollaboratorDto: CreateCollaboratorDto,
+    @GetUser('userId') userId: string,
+  ) {
+    return this.collaboratorService.create(createCollaboratorDto, userId);
   }
 
   @Get()
@@ -18,17 +30,31 @@ export class CollaboratorController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.collaboratorService.findOne(+id);
+  findOne(
+    @Param('id')
+    @GetUser('userId')
+    userId: string,
+    id: string,
+  ) {
+    return this.collaboratorService.findOne(id, userId);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCollaboratorDto: UpdateCollaboratorDto) {
-    return this.collaboratorService.update(+id, updateCollaboratorDto);
+  update(
+    @Param('id') id: string,
+    @Body() updateCollaboratorDto: UpdateCollaboratorDto,
+    @GetUser('userId') userId: string,
+  ) {
+    return this.collaboratorService.update(id, updateCollaboratorDto, userId);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.collaboratorService.remove(+id);
+  remove(
+    @Param('id')
+    @GetUser('userId')
+    userId: string,
+    id: string,
+  ) {
+    return this.collaboratorService.remove(id, userId);
   }
 }
