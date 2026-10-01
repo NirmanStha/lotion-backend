@@ -4,11 +4,13 @@ import {
   IsOptional,
   IsString,
   IsUUID,
+  MaxLength,
 } from 'class-validator';
 
 export class CreatePageDto {
   @IsOptional()
   @IsString()
+  @MaxLength(200)
   title?: string;
 
   @IsOptional()
@@ -29,18 +31,6 @@ export class CreatePageDto {
 
   @IsUUID()
   workspaceId!: string;
-
-  @IsOptional()
-  @IsUUID()
-  createdById?: string;
-
-  @IsOptional()
-  @IsBoolean()
-  isPublished?: boolean;
-
-  @IsOptional()
-  @IsBoolean()
-  isArchived?: boolean;
 
   @IsOptional()
   @IsBoolean()

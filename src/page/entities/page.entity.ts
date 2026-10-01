@@ -31,7 +31,7 @@ export class Page {
     onDelete: 'CASCADE',
     nullable: true,
   })
-  parentPage?: Page;
+  parentPage?: Page | null;
 
   @OneToMany(() => Page, (page) => page.parentPage)
   subPages!: Page[];

@@ -1,13 +1,19 @@
 import { SetMetadata } from '@nestjs/common';
-import { WorkspacePermission } from '../enums/permission.enum';
+import {
+  PagePermissionEnum,
+  WorkspacePermission,
+} from '../enums/permission.enum';
 
 export const POLICY_META_KEY = 'policy_meta';
 
-export interface PolicyMeta {
-  permission: WorkspacePermission;
+export interface PolicyMeta<
+  TPermission = WorkspacePermission | PagePermissionEnum,
+> {
+  permission: TPermission;
+  /** Name of the route param holding the id to authorize against. Defaults to `id`. */
   param?: string;
 }
 
-export const PolicyMeta = (meta: PolicyMeta) => {
+export const PolicyMeta = <TPermission>(meta: PolicyMeta<TPermission>) => {
   return SetMetadata(POLICY_META_KEY, meta);
 };

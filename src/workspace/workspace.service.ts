@@ -17,6 +17,8 @@ import {
 import { APIResponse } from 'src/common/dtos/api-response.dto';
 import { AccessControlService } from 'src/access-control/access-control.service';
 import { WorkspacePermission } from 'src/access-control/enums/permission.enum';
+import { plainToInstance } from 'class-transformer';
+import { WorkspaceWithCollaboratorsResponseDto } from './dto/workspace-with-collaborators.response.dto';
 @Injectable()
 export class WorkspaceService {
   constructor(
@@ -39,6 +41,21 @@ export class WorkspaceService {
     if (workspace) {
       throw new ConflictException(`Workspace with ID "${name}" already exists`);
     }
+  }
+
+  private omitOwnerFromCollaborators(workspace: Workspace): Workspace {
+    if (!workspace.collaborators?.length || !workspace.owner?.id) {
+      return workspace;
+    }
+
+    return {
+      ...workspace,
+      collaborators: workspace.collaborators.filter(
+        (collaborator) =>
+          collaborator.user?.id !== workspace.owner.id &&
+          collaborator.role !== CollaboratorRole.OWNER,
+      ),
+    };
   }
   async create(createWorkspaceDto: CreateWorkspaceDto, userId: string) {
     await this.checkExistingWorkspace(createWorkspaceDto.name, userId);
@@ -64,18 +81,30 @@ export class WorkspaceService {
 
   //get all workspaces for a user
   async findAll(userId: string) {
-    return this.workspaceRepo
-      .createQueryBuilder('workspace')
-      .leftJoin('workspace.owner', 'owner')
-      .addSelect([
-        'owner.id',
-        'owner.firstName',
-        'owner.lastName',
-        'owner.profilePic',
-      ])
-      .where('owner.id = :userId', { userId })
+    const workspaces = await this.workspaceRepo.find({
+      where: {
+        owner: { id: userId },
+      },
+      relations: [
+        'owner',
+        'owner.authProviders',
+        'collaborators',
+        'collaborators.user',
+        'collaborators.user.authProviders',
+      ],
+    });
 
-      .getMany();
+    const cleanedWorkspaces = workspaces.map((workspace) =>
+      this.omitOwnerFromCollaborators(workspace),
+    );
+
+    return plainToInstance(
+      WorkspaceWithCollaboratorsResponseDto,
+      cleanedWorkspaces,
+      {
+        excludeExtraneousValues: true,
+      },
+    );
   }
 
   async findOne(workspaceId: string, userId: string) {
@@ -94,15 +123,16 @@ export class WorkspaceService {
       where: {
         id: workspaceId,
       },
-      relations: ['owner', 'collaborators'],
+      relations: ['owner', 'collaborators', 'collaborators.user'],
     });
 
     if (!workspace) {
       throw new NotFoundException(`Workspace with ID ${workspaceId} not found`);
     }
+    const cleanedWorkspace = this.omitOwnerFromCollaborators(workspace);
     const res = APIResponse.success(
       'Workspace retrieved successfully',
-      workspace,
+      cleanedWorkspace,
     );
     return res;
   }
@@ -123,7 +153,7 @@ export class WorkspaceService {
       where: {
         id: workspaceId,
       },
-      relations: ['owner', 'collaborators', 'pages'],
+      relations: ['owner', 'collaborators', 'collaborators.user', 'pages'],
     });
 
     if (!workspace) {
@@ -134,7 +164,7 @@ export class WorkspaceService {
 
     return APIResponse.success(
       'Workspace with pages retrieved successfully',
-      workspace,
+      this.omitOwnerFromCollaborators(workspace),
     );
   }
   //get one workspace by id
@@ -198,7 +228,7 @@ export class WorkspaceService {
       where: {
         id,
       },
-      relations: ['owner', 'collaborators'],
+      relations: ['owner', 'collaborators', 'collaborators.user'],
     });
 
     if (!workspace) {
@@ -228,7 +258,7 @@ export class WorkspaceService {
       where: {
         id,
       },
-      relations: ['owner', 'collaborators'],
+      relations: ['owner', 'collaborators', 'collaborators.user'],
     });
     Logger.log(workspace, 'this is workspace in remove');
     if (!workspace) {

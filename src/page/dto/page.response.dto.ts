@@ -39,6 +39,14 @@ export class PageResponseDto {
   @Type(() => PageSummaryDto)
   parentPage?: PageSummaryDto;
 
+  /**
+   * Only populated by the tree endpoint; flat responses leave this empty so
+   * a single page fetch doesn't drag in its whole subtree.
+   */
+  @Expose()
+  @Type(() => PageResponseDto)
+  subPages: PageResponseDto[] = [];
+
   @Expose()
   @Type(() => WorkspaceResponseDto)
   workspace!: WorkspaceResponseDto;

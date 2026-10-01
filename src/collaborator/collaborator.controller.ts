@@ -24,9 +24,12 @@ export class CollaboratorController {
     return this.collaboratorService.create(createCollaboratorDto, userId);
   }
 
-  @Get()
-  findAll() {
-    return this.collaboratorService.findAll();
+  @Get('workspace/:workspaceId')
+  findAllByWorkspace(
+    @Param('workspaceId') workspaceId: string,
+    @GetUser('userId') userId: string,
+  ) {
+    return this.collaboratorService.findAllByWorkspace(workspaceId, userId);
   }
 
   @Get(':id')

@@ -1,6 +1,7 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { registerAs } from '@nestjs/config';
 import { Page } from './page/entities/page.entity';
+import { PagePremission } from './page-premission/entities/page-premission.entity';
 import { WorkspaceCollaborator } from './collaborator/entities/collaborator.entity';
 import { Workspace } from './workspace/entities/workspace.entity';
 import { User } from './user/entities/user.entity';
@@ -15,7 +16,16 @@ export default registerAs(
     username: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
-    entities: [Auth, User, Workspace, WorkspaceCollaborator, Page],
+    // PagePremission is required: AccessControlService.canAccessPage queries it
+    // to resolve page-level access for users with no workspace membership.
+    entities: [
+      Auth,
+      User,
+      Workspace,
+      WorkspaceCollaborator,
+      Page,
+      PagePremission,
+    ],
     synchronize: true,
   }),
 );

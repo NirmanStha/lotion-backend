@@ -35,6 +35,15 @@ export class User {
   @Column({ default: false })
   isComplete!: boolean;
 
+  /**
+   * Grants access to platform-wide administrative endpoints (user listing,
+   * cross-tenant visibility). Intentionally absent from every response DTO
+   * so a caller cannot discover who holds it, and never settable through a
+   * user-facing update - see UserService.update.
+   */
+  @Column({ default: false })
+  isSuperAdmin!: boolean;
+
   @OneToMany(() => Auth, (auth) => auth.user)
   authProviders!: Auth[];
 

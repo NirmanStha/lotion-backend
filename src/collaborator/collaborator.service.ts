@@ -3,6 +3,8 @@ import { CreateCollaboratorDto } from './dto/create-collaborator.dto';
 import { UpdateCollaboratorDto } from './dto/update-collaborator.dto';
 import { APIResponse } from 'src/common/dtos/api-response.dto';
 import { InjectRepository } from '@nestjs/typeorm';
+import { plainToInstance } from 'class-transformer';
+import { WorkspaceCollaboratorResponseDto } from './dto/workspace-collaborator.response.dto';
 
 import { Repository } from 'typeorm';
 import { WorkspaceCollaborator } from './entities/collaborator.entity';
@@ -63,8 +65,38 @@ export class CollaboratorService {
     return APIResponse.success('Collaborator added successfully', collab);
   }
 
-  findAll() {
-    return `This action returns all collaborator`;
+  /**
+   * Collaborators of a single workspace. Deliberately workspace-scoped: a
+   * platform-wide listing would expose every user's workspace memberships to
+   * any caller who can read one workspace.
+   */
+  async findAllByWorkspace(workspaceId: string, userId: string) {
+    const hasAccess = await this.accessControlService.canAccessWorkspace(
+      userId,
+      workspaceId,
+      WorkspacePermission.READ,
+    );
+
+    if (!hasAccess) {
+      throw new ForbiddenException(
+        'You do not have permission to view collaborators in this workspace',
+      );
+    }
+
+    const collaborators = await this.workspaceCollaboratorRepo.find({
+      where: { workspace: { id: workspaceId } },
+      relations: ['workspace', 'user', 'user.authProviders'],
+      order: { createdAt: 'ASC' },
+    });
+
+    return APIResponse.success(
+      'Collaborators retrieved successfully',
+      collaborators.map((collaborator) =>
+        plainToInstance(WorkspaceCollaboratorResponseDto, collaborator, {
+          excludeExtraneousValues: true,
+        }),
+      ),
+    );
   }
 
   async findOne(id: string, userId: string) {

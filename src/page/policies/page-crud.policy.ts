@@ -6,10 +6,10 @@ import {
   PolicyMeta,
 } from 'src/access-control/decorator/policy-meta.decorator';
 import { IPolicyHandler } from 'src/access-control/interface/policy-handler.interface';
-import { WorkspacePermission } from 'src/access-control/enums/permission.enum';
+import { PagePermissionEnum } from 'src/access-control/enums/permission.enum';
 
 @Injectable()
-export class WorkspaceCrudPolicy implements IPolicyHandler {
+export class PageCrudPolicy implements IPolicyHandler {
   constructor(
     private readonly accessControl: AccessControlService,
     private readonly reflector: Reflector,
@@ -17,7 +17,7 @@ export class WorkspaceCrudPolicy implements IPolicyHandler {
 
   async handle(context: ExecutionContext): Promise<boolean> {
     const meta = this.reflector.getAllAndOverride<
-      PolicyMeta<WorkspacePermission>
+      PolicyMeta<PagePermissionEnum>
     >(POLICY_META_KEY, [context.getHandler(), context.getClass()]);
 
     if (!meta) {
@@ -26,16 +26,16 @@ export class WorkspaceCrudPolicy implements IPolicyHandler {
 
     const request = context.switchToHttp().getRequest();
     const userId = request.user?.userId;
-    const workspaceId = request.params?.[meta.param ?? 'id'];
+    const pageId = request.params?.[meta.param ?? 'id'];
 
-    if (!userId || !workspaceId) {
+    if (!userId || !pageId) {
       return false;
     }
 
-    return this.accessControl.canAccessWorkspace(
-      userId,
-      workspaceId,
+    return await this.accessControl.canAccessPage(
       meta.permission,
+      userId,
+      pageId,
     );
   }
 }

@@ -15,7 +15,10 @@ import {
   WorkspacePermission,
   PagePermissionEnum,
 } from './enums/permission.enum';
-import { RolePermissions } from './maps/role-permission.map';
+import {
+  RolePermissions,
+  PageRolePermissions,
+} from './maps/role-permission.map';
 
 @Injectable()
 export class AccessControlService {
@@ -132,7 +135,11 @@ export class AccessControlService {
     const pageRole = await this.getPageLevelPermission(userId, pageId);
 
     if (pageRole !== null) {
-      const pageRolePermissions = RolePermissions[pageRole];
+      // Must use PageRolePermissions, not RolePermissions: PageRole and
+      // CollaboratorRole share the string values 'EDITOR'/'VIEWER', so
+      // indexing the workspace map here would hand a page-level guest the
+      // broader workspace role's permissions (delete, move, publish, share).
+      const pageRolePermissions = PageRolePermissions[pageRole];
       return pageRolePermissions.includes(permission);
     }
 

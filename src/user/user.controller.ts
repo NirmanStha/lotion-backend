@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { UserService } from './user.service';
@@ -13,12 +14,20 @@ import { UserService } from './user.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 import { GetUser } from 'src/common/decorator/get-user.decorator';
+import { SuperAdminOnly } from 'src/common/decorator/super-admin-only.decorator';
+import { SuperAdminGuard } from 'src/common/gaurd/super-admin.guard';
 import { createFileInterceptor } from 'src/common/inteceptor/file-intercept.interceptor';
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  /**
+   * Platform-wide user directory. Exposes every account's email via
+   * authProviders, so it is restricted to super admins.
+   */
   @Get('all')
+  @UseGuards(SuperAdminGuard)
+  @SuperAdminOnly()
   findAll() {
     return this.userService.findAll();
   }
@@ -36,7 +45,6 @@ export class UserController {
     @UploadedFile() profilePic: Express.Multer.File,
   ) {
     const id = userId;
-    console.log('this is conrtoell', updateUserDto);
 
     return this.userService.update(id, {
       ...updateUserDto,
@@ -44,8 +52,17 @@ export class UserController {
     });
   }
 
+  /**
+   * A user may delete their own account; deleting anyone else requires
+   * super admin. Authorization is enforced in the service, which also
+   * prevents removing the last super admin.
+   */
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.userService.remove(id);
+  remove(
+    @Param('id') id: string,
+    @GetUser('userId') requesterId: string,
+    @GetUser('isSuperAdmin') isSuperAdmin: boolean,
+  ) {
+    return this.userService.remove(id, requesterId, isSuperAdmin === true);
   }
 }
