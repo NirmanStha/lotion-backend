@@ -45,9 +45,12 @@ export class SuperAdminBootstrapService implements OnApplicationBootstrap {
       relations: ['user'],
     });
 
+    // The configured address is deliberately not echoed: it is the identity of
+    // the most privileged account on the platform, and startup logs tend to be
+    // shipped somewhere less protected than the database holding it.
     if (!auth?.user) {
       this.logger.warn(
-        `SUPER_ADMIN_EMAIL (${email}) does not match a registered user - no super admin was seeded.`,
+        'Configured SUPER_ADMIN_EMAIL does not match a registered user - no super admin was seeded.',
       );
       return;
     }
@@ -57,6 +60,8 @@ export class SuperAdminBootstrapService implements OnApplicationBootstrap {
     }
 
     await this.userRepo.update(auth.user.id, { isSuperAdmin: true });
-    this.logger.log(`Seeded super admin for ${email}`);
+    // User id rather than email: it is enough to identify the account in the
+    // database without printing the address into logs.
+    this.logger.log(`Seeded super admin for user ${auth.user.id}`);
   }
 }
